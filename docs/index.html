@@ -27,19 +27,29 @@
   html, body{
     margin:0;
     padding:0;
-    min-height:100vh;
+    height:100%;
     background: var(--bg);
     color: var(--paper);
     font-family: var(--font-body);
   }
 
   body{
+    min-height:100vh;
     background-image:
       radial-gradient(circle at 50% 0%, rgba(232,179,77,0.08), transparent 60%),
       repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, transparent 1px, transparent 2px);
     display:flex;
-    justify-content:center;
-    padding: 0 28px 64px;
+    padding: 32px 28px;
+  }
+
+  .page-wrap{
+    margin: auto;
+    width: 100%;
+    max-width: 560px;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(24px, 5vh, 44px);
   }
 
   .film-rail{
@@ -60,15 +70,12 @@
     border-radius:4px;
     background: var(--bg);
   }
-  @media (max-width: 640px){
+  @media (max-width: 900px){
     .film-rail{ display:none; }
-    body{ padding: 0 16px 48px; }
   }
 
   .marquee{
     width:100%;
-    max-width: 640px;
-    margin-top: 40px;
     text-align:center;
   }
 
@@ -93,7 +100,7 @@
   h1.title{
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: clamp(2.4rem, 8vw, 3.6rem);
+    font-size: clamp(2.2rem, 9vw, 3.6rem);
     letter-spacing: 0.03em;
     margin: 0;
     color: var(--paper);
@@ -108,8 +115,7 @@
 
   main{
     width:100%;
-    max-width: 520px;
-    margin-top: 44px;
+    max-width: 480px;
   }
 
   .reel-status{
@@ -278,13 +284,19 @@
     *{ animation: none !important; transition: none !important; }
   }
 
-  /* ---- Responsive tightening for phones ---- */
+  /* ---- Responsive tightening ---- */
+
+  /* Tablets (iPad portrait/landscape, large phones) */
+  @media (max-width: 900px){
+    body{ padding: 28px 22px; }
+  }
+
+  /* Phones */
   @media (max-width: 480px){
-    .marquee{ margin-top: 24px; }
+    body{ padding: 20px 16px; }
     .marquee-lights{ gap: 7px; margin-bottom: 14px; }
     .marquee-lights span{ width:6px; height:6px; }
     h1.title{ letter-spacing: 0.02em; }
-    main{ margin-top: 28px; }
     .ticket{ padding: 26px 20px 22px; border-radius: 8px; }
     .ticket::before, .ticket::after{ display:none; }
     .clue-text{ font-size: 1.05rem; margin-bottom: 20px; min-height: 0; }
@@ -292,6 +304,21 @@
     input[type="text"]{ width:100%; font-size: 16px; padding: 14px 14px; }
     button{ width:100%; padding: 14px 20px; min-height: 48px; }
     .reel-status{ font-size: 0.9rem; }
+  }
+
+  /* Very small phones (SE, older Android) */
+  @media (max-width: 360px){
+    h1.title{ font-size: 2rem; }
+    .subtitle{ font-size: 0.85rem; }
+    .ticket{ padding: 22px 16px 18px; }
+  }
+
+  /* Short viewports (landscape phones) — trim vertical rhythm */
+  @media (max-height: 560px){
+    .page-wrap{ gap: 18px; }
+    .marquee-lights{ margin-bottom: 8px; }
+    h1.title{ font-size: clamp(1.8rem, 6vw, 2.6rem); }
+    .subtitle{ display:none; }
   }
 </style>
 </head>
@@ -304,47 +331,48 @@
   <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
 </div>
 
-<div class="marquee">
-  <div class="marquee-lights" aria-hidden="true">
-    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+<div class="page-wrap">
+  <div class="marquee">
+    <div class="marquee-lights" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <h1 class="title">FILMED UP</h1>
+    <p class="subtitle">Find the code. Crack the reel. Roll on.</p>
   </div>
-  <h1 class="title">FILMED UP</h1>
-  <p class="subtitle">Find the code. Crack the reel. Roll on.</p>
+
+  <main>
+    <div id="game-view">
+      <div class="reel-status">
+        <span id="reel-label">Reel 1 of 10</span>
+        <span class="frames" id="frames" aria-hidden="true"></span>
+      </div>
+
+      <div class="ticket" id="ticket">
+        <div class="clue-label">Your next clue</div>
+        <div class="clue-text" id="clue-text">Loading...</div>
+
+        <form id="code-form">
+          <input type="text" id="code-input" placeholder="Enter code" autocomplete="off" autocapitalize="characters" aria-label="Enter the code you found">
+          <button type="submit">Submit</button>
+        </form>
+
+        <div class="message" id="message" role="status" aria-live="polite"></div>
+      </div>
+
+      <a href="#" class="admin-link" id="reset-link">Restart the hunt</a>
+    </div>
+
+    <div id="win-view" class="win-screen hidden">
+      <div class="the-end">THE END</div>
+      <p>You found every code and made it through all 10 reels. Roll credits — the hunt is yours.</p>
+      <button class="reset-btn" id="reset-btn">Play again</button>
+    </div>
+  </main>
 </div>
 
-<main>
-  <div id="game-view">
-    <div class="reel-status">
-      <span id="reel-label">Reel 1 of 10</span>
-      <span class="frames" id="frames" aria-hidden="true"></span>
-    </div>
-
-    <div class="ticket" id="ticket">
-      <div class="clue-label">Your next clue</div>
-      <div class="clue-text" id="clue-text">Loading...</div>
-
-      <form id="code-form">
-        <input type="text" id="code-input" placeholder="Enter code" autocomplete="off" autocapitalize="characters" aria-label="Enter the code you found">
-        <button type="submit">Submit</button>
-      </form>
-
-      <div class="message" id="message" role="status" aria-live="polite"></div>
-    </div>
-
-    <a href="#" class="admin-link" id="reset-link">Restart the hunt</a>
-  </div>
-
-  <div id="win-view" class="win-screen hidden">
-    <div class="the-end">THE END</div>
-    <p>You found every code and made it through all 10 reels. Roll credits — the hunt is yours.</p>
-    <button class="reset-btn" id="reset-btn">Play again</button>
-  </div>
-</main>
-
 <script>
-
   const CHALLENGES = [
-    { clue: "Placeholder clue 1: describe where in the app or venue to find the first code.", hash: "3733cd977ff8eb18b987357e22ced99f46097f31ecb239e878ae63760e83e4d5" },
+    { clue: "Placeholder clue 1: describe where in the app or venue to find the first code.", hash: "1556fae95a6e9f0c23521318e61649b035ed8e7863897cabe7c9fefb2b8a63d9" },
     { clue: "Placeholder clue 2: describe the next challenge here.", hash: "11defc036611a355b63532821b2187593bf81248d7ebc761e8afcae699c0b715" },
     { clue: "Placeholder clue 3: describe the next challenge here.", hash: "410de434e0e9d64d9bca4ff536158e4b8e748d224b1feb3eb18bffb170491062" },
     { clue: "Placeholder clue 4: describe the next challenge here.", hash: "acfa11d9bab465fa50a60c56bd4953761cd8751479fd00c8bdfc2366bb86bca0" },
